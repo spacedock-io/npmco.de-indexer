@@ -20,6 +20,7 @@ jsonquest({
     },
     fields: ["package", "version", "filename"],
     highlight: {
+      order: 'score',
       fields: {
         content: {
           number_of_fragments: 2
