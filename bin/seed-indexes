@@ -1,0 +1,44 @@
+curl -X DELETE http://localhost:9200/files
+
+curl -X PUT "http://localhost:9200/files" -d '{
+  "mappings": {
+    "file": {
+      "properties": {
+        "filename": {
+          "type": "string",
+          "search_analyzer": "str_search_analyzer"
+        },
+        "content": {
+          "type": "string",
+          "search_analyzer": "str_search_analyzer",
+          "term_vector": "with_positions_offsets"
+        },
+        "package": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "version": {
+          "type": "string",
+          "index": "not_analyzed"
+        }
+      }
+    }
+  },
+
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "str_search_analyzer": {
+          "tokenizer": "ngram_tokenizer",
+          "filter": ["lowercase"]
+        }
+      },
+      "tokenizer": {
+        "ngram_tokenizer": {
+          "type": "pattern",
+          "pattern": " "
+        }
+      }
+    }
+  }
+}'

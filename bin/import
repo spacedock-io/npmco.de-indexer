@@ -1,0 +1,67 @@
+#!/usr/bin/env node
+var fs = require('fs'),
+    zlib = require('zlib'),
+    http = require('http'),
+    path = require('path'),
+    tar = require('tar'),
+    uuid = require('node-uuid'),
+    jsonquest = require('jsonquest');
+
+var package = process.argv[2].split('@'),
+    name = package[0],
+    version = package[1];
+
+var request = http.request({
+  host: 'registry.npmjs.org',
+  path: '/' + name + '/-/' + name + '-' + version + '.tgz'
+});
+
+request.on('error', function (err) {
+  console.error('Error while downloading tarball');
+  console.error(err);
+  process.exit(1);
+});
+
+request.on('response', function (res) {
+  if (res.statusCode !== 200) {
+    console.error('npm error (' + res.statusCode + ')');
+    process.exit(2);
+  }
+
+  res
+    .pipe(zlib.createGunzip())
+    .pipe(tar.Parse())
+    .on('entry', function (entry) {
+      var data = '';
+
+      if (path.extname(entry.path) !== '.js') {
+        return;
+      }
+
+      entry.on('data', function (chunk) {
+        data += chunk.toString('utf8');
+      });
+
+      entry.on('end', function () {
+
+        jsonquest({
+          host: 'localhost',
+          port: 9200,
+          method: 'PUT',
+          path: '/files/file/' + uuid.v4(),
+          body: {
+            package: name,
+            version: version,
+            filename: entry.path,
+            content: data
+          }
+        }, function (err, res, content) {
+          console.log(res.statusCode);
+          console.log(content);
+        });
+      });
+    });
+});
+
+request.end();
+
