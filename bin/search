@@ -38,7 +38,8 @@ jsonquest({
     console.log();
     hit.highlight.content.forEach(function (line) {
       process.stdout.write('  ');
-      console.log(line.replace('<em>', '\x1B[31m').replace('</em>', '\x1B[39m'));
+      line = line.replace(/<em\>/g, '\x1B[31m').replace(/<\/em\>/g, '\x1B[39m');
+      console.log(line);
     });
 
     console.log();
