@@ -6,8 +6,7 @@ curl -X PUT "http://localhost:9200/files" -d '{
     "file": {
       "properties": {
         "filename": {
-          "type": "string",
-          "search_analyzer": "str_search_analyzer"
+          "type": "string"
         },
         "content": {
           "type": "string",
@@ -30,10 +29,6 @@ curl -X PUT "http://localhost:9200/files" -d '{
   "settings": {
     "analysis": {
       "analyzer": {
-        "str_search_analyzer": {
-          "tokenizer": "ngram_tokenizer",
-          "filter": ["lowercase"]
-        },
         "code_index": {
           "tokenizer": "pattern",
           "filter": ["code_index", "lowercase"]
