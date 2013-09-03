@@ -1,0 +1,3 @@
+#!/bin/bash
+./seed-indexes
+./import tar@00.1.18
