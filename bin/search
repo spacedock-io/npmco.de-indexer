@@ -1,0 +1,46 @@
+#!/usr/bin/env node
+var jsonquest = require('jsonquest'),
+    colors = require('colors');
+
+if (!process.argv[2]) {
+  console.error('Usage: bin/search <search-term>');
+  process.exit(1);
+}
+
+jsonquest({
+  host: 'localhost',
+  port: 9200,
+  method: 'POST',
+  path: '/files/file/_search',
+  body: {
+    query: {
+      match: {
+        content: process.argv[2]
+      }
+    },
+    fields: ["package", "version", "filename"],
+    highlight: {
+      fields: {
+        content: {
+          number_of_fragments: 2
+        }
+      }
+    }
+  }
+}, function (err, res, data) {
+  console.log(data.hits.total.toString().bold + ' hits (took ' + data.took.toString() + ' ms).');
+
+  data.hits.hits.forEach(function (hit) {
+    // Inhale, exhale.
+    var f = hit.fields;
+    console.log('Package: ' + (f.package + '@' + f.version).bold);
+    console.log('File:    ' + f.filename.bold);
+    console.log();
+    hit.highlight.content.forEach(function (line) {
+      process.stdout.write('  ');
+      console.log(line.replace('<em>', '\x1B[31m').replace('</em>', '\x1B[39m'));
+    });
+
+    console.log();
+  });
+});
