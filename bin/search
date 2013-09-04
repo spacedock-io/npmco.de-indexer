@@ -36,6 +36,7 @@ jsonquest({
     var f = hit.fields;
     console.log('Package: ' + (f.package + '@' + f.version).bold);
     console.log('File:    ' + f.filename.bold);
+    console.log('Score:   ' + hit._score.toString());
     console.log();
     hit.highlight.content.forEach(function (line) {
       process.stdout.write('  ');
