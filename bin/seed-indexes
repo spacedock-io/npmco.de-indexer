@@ -30,12 +30,12 @@ curl -X PUT "http://localhost:9200/files" -d '{
     "analysis": {
       "analyzer": {
         "code_index": {
-          "tokenizer": "pattern",
+          "tokenizer": "code_tokenizer",
           "filter": ["code_index", "lowercase"]
         },
         "code_search": {
-          "tokenizer": "pattern",
-          "filter": ["code_search", "lowercase"]
+          "tokenizer": "keyword",
+          "filter": ["lowercase"]
         }
       },
       "filter": {
@@ -43,21 +43,15 @@ curl -X PUT "http://localhost:9200/files" -d '{
           "type": "pattern_capture",
           "preserve_original": 1,
           "patterns": [
-            "([a-zA-Z]+)"
-          ]
-        },
-        "code_search": {
-          "type": "pattern_capture",
-          "preserve_original": 1,
-          "patterns": [
-            "([a-zA-Z_]+)"
+            "([a-zA-Z_]+)",
+            "([a-zA-Z_.]+)"
           ]
         }
       },
       "tokenizer": {
-        "ngram_tokenizer": {
+        "code_tokenizer": {
           "type": "pattern",
-          "pattern": " "
+          "pattern": "[{}() +=*]"
         }
       }
     }
