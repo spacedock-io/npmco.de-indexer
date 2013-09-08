@@ -14,8 +14,9 @@ jsonquest({
   path: '/files/file/_search',
   body: {
     query: {
-      match: {
-        content: process.argv[2]
+      query_string: {
+        fields: ['content'],
+        query: process.argv[2]
       }
     },
     fields: ["package", "version", "filename"],
