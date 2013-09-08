@@ -1,3 +1,79 @@
-#!/bin/bash
-curl -X DELETE http://localhost:9200/files
-curl -X PUT "http://localhost:9200/files" -d @lib/common/elasticsearch/files.json
+#!/usr/bin/env node
+var fs = require('fs'),
+    path = require('path'),
+    async = require('async'),
+    jsonquest = require('jsonquest');
+
+function close(index, next) {
+  jsonquest({
+    host: 'localhost',
+    port: 9200,
+    method: 'POST',
+    path: '/' + index + '/_close'
+  }, next);
+}
+
+function updateSettings(index, settings, next) {
+  jsonquest({
+    host: 'localhost',
+    port: 9200,
+    method: 'PUT',
+    path: '/' + index + '/_settings',
+    body: settings
+  }, next);
+}
+
+function updateMapping(index, type, mapping, next) {
+  var body = {};
+  body[type] = mapping;
+
+  jsonquest({
+    host: 'localhost',
+    port: 9200,
+    method: 'PUT',
+    path: '/' + index + '/' + type + '/_mapping',
+    body: body
+  }, next);
+}
+
+function updateMappings(index, mappings, next) {
+  async.parallel(
+    Object.keys(mappings).map(function (k) {
+      return updateMapping.bind(null, index, k, mappings[k]);
+    }),
+    next
+  );
+}
+
+function open(index, next) {
+  jsonquest({
+    host: 'localhost',
+    port: 9200,
+    method: 'POST',
+    path: '/' + index + '/_open'
+  }, next);
+}
+
+var base = path.join(path.join(__dirname, '..', 'lib', 'common', 'elasticsearch')),
+    indexes = {};
+
+fs.readdirSync(base).forEach(function (file) {
+  indexes[path.basename(file, '.json')] = JSON.parse(fs.readFileSync(path.join(base, file)));
+});
+
+Object.keys(indexes).forEach(function (k) {
+  var index = indexes[k];
+  async.series([
+    close.bind(null, k),
+    updateSettings.bind(null, k, index.settings),
+    updateMappings.bind(null, k, index.mappings),
+    open.bind(null, k)
+  ], function (err) {
+    if (err) {
+      console.error('Error seeding indexes', err);
+      return process.exit(1);
+    }
+
+    console.log('Seeding indexes successful');
+  });
+});
