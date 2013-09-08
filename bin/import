@@ -1,18 +1,16 @@
 #!/usr/bin/env node
-var import_ = require('../lib/import');
+var zlib = require('zlib'),
+    tar = require('tar'),
+    request = require('request'),
+    Importer = require('../lib/import'),
+    elasticstream = require('elasticstream');
 
 var package = process.argv[2].split('@'),
     name = package[0],
     version = package[1];
 
-var importer = import_({
-  name: name,
-  version: version,
-  elasticsearch: {
-    host: 'localhost',
-    port: 9200
-  }
-});
-importer.on('done', function () {
-  console.dir(arguments);
-});
+request('http://registry.npmjs.org/' + name + '/-/' + name + '-' + version + '.tgz')
+  .pipe(zlib.createGunzip())
+  .pipe(tar.Parse())
+  .pipe(Importer({ name: name, version: version }))
+  .pipe(elasticstream({ index: 'files', type: 'file' }));
