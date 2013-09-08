@@ -1,0 +1,55 @@
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "code_index": {
+          "tokenizer": "code_tokenizer",
+          "filter": ["code_index", "lowercase"]
+        },
+        "code_search": {
+          "tokenizer": "keyword",
+          "filter": ["lowercase"]
+        }
+      },
+      "filter": {
+        "code_index": {
+          "type": "pattern_capture",
+          "preserve_original": 1,
+          "patterns": [
+            "([a-zA-Z_]+)",
+            "([a-zA-Z_.]+)"
+          ]
+        }
+      },
+      "tokenizer": {
+        "code_tokenizer": {
+          "type": "pattern",
+          "pattern": "[{}() +=*\\\\/]"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "file": {
+      "properties": {
+        "filename": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string",
+          "index_analyzer": "code_index",
+          "search_analyzer": "code_search",
+          "term_vector": "with_positions_offsets"
+        },
+        "package": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "version": {
+          "type": "string",
+          "index": "not_analyzed"
+        }
+      }
+    }
+  }
+}
