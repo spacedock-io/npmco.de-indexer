@@ -4,13 +4,22 @@ var fs = require('fs'),
     async = require('async'),
     jsonquest = require('jsonquest');
 
+function ensureIndex(index, next) {
+  jsonquest({
+    host: 'localhost',
+    port: 9200,
+    method: 'PUT',
+    path: '/' + index
+  }, setTimeout.bind(null, next, 100));
+}
+
 function close(index, next) {
   jsonquest({
     host: 'localhost',
     port: 9200,
     method: 'POST',
     path: '/' + index + '/_close'
-  }, next);
+  }, setTimeout.bind(null, next, 100));
 }
 
 function updateSettings(index, settings, next) {
@@ -20,7 +29,7 @@ function updateSettings(index, settings, next) {
     method: 'PUT',
     path: '/' + index + '/_settings',
     body: settings
-  }, next);
+  }, setTimeout.bind(null, next, 100));
 }
 
 function updateMapping(index, type, mapping, next) {
@@ -33,7 +42,7 @@ function updateMapping(index, type, mapping, next) {
     method: 'PUT',
     path: '/' + index + '/' + type + '/_mapping',
     body: body
-  }, next);
+  }, setTimeout.bind(null, next, 100));
 }
 
 function updateMappings(index, mappings, next) {
@@ -51,7 +60,7 @@ function open(index, next) {
     port: 9200,
     method: 'POST',
     path: '/' + index + '/_open'
-  }, next);
+  }, setTimeout.bind(null, next, 100));
 }
 
 var base = path.join(path.join(__dirname, '..', 'lib', 'common', 'elasticsearch')),
@@ -64,6 +73,7 @@ fs.readdirSync(base).forEach(function (file) {
 Object.keys(indexes).forEach(function (k) {
   var index = indexes[k];
   async.series([
+    ensureIndex.bind(null, k),
     close.bind(null, k),
     updateSettings.bind(null, k, index.settings),
     updateMappings.bind(null, k, index.mappings),
