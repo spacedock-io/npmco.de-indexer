@@ -5,10 +5,7 @@ var zlib = require('zlib'),
     crypto = require('crypto'),
     events = require('events'),
     stream = require('stream'),
-    tar = require('tar'),
-    uuid = require('node-uuid'),
-    hyperquest = require('hyperquest'),
-    jsonquest = require('jsonquest');
+    tar = require('tar');
 
 var Importer = module.exports = function (options) {
   if (!(this instanceof Importer)) {
