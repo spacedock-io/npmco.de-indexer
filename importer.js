@@ -35,7 +35,7 @@ Importer.prototype.add = function (entry) {
     data += chunk.toString('utf8');
   });
 
-  entry.on('end', function () {
+  entry.once('end', function () {
     self.push({
       id: self.name + '-' + hash.digest('hex'),
       doc: {
