@@ -9,8 +9,16 @@ var package = process.argv[2].split('@'),
     name = package[0],
     version = package[1];
 
-request('http://registry.npmjs.org/' + name + '/-/' + name + '-' + version + '.tgz')
-  .pipe(zlib.createGunzip())
-  .pipe(tar.Parse())
-  .pipe(Importer({ name: name, version: version }))
-  .pipe(elasticstream({ index: 'files', type: 'file' }));
+request({
+  url: 'https://registry.npmjs.org/' + name,
+  json: true
+}, function (err, res, body) {
+  if (err) throw err;
+  if (!body.versions[version]) throw new Error('No such version');
+
+  request(body.versions[version].dist.tarball)
+    .pipe(zlib.createGunzip())
+    .pipe(tar.Parse())
+    .pipe(Importer({ name: name, version: version }))
+    .pipe(elasticstream({ index: 'files', type: 'file' }));
+});
