@@ -9,6 +9,7 @@ var bodyJson = require('body/json')
 var sendJson = require('send-data/json')
 var Router = require('routes-router')
 var errors = require('./errors.js')
+var sendError = require('./send-error.js')
 var Importer = require('./importer.js')
 
 var config = JSON.parse(fs.readFileSync(process.argv[2]))
