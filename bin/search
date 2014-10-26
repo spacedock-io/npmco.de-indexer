@@ -30,6 +30,7 @@ jsonquest({
     }
   }
 }, function (err, res, data) {
+  if (!data.hits) return console.error('No hits.');
   console.log(data.hits.total.toString().bold + ' hits (took ' + data.took.toString() + ' ms).');
 
   data.hits.hits.forEach(function (hit) {
