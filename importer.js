@@ -41,7 +41,7 @@ Importer.prototype.add = function (entry) {
       doc: {
         package: self.name,
         version: self.version,
-        filename: entry.path,
+        filename: entry.path.split('/').slice(1),
         content: data
       }
     });
