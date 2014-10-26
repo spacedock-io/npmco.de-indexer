@@ -6,8 +6,8 @@ Code search feature for npm.
 You need ElasticSearch installed first.
 
 ```bash
-git clone https://github.com/nodejitsu/npmco.de.git
-cd npmco.de
+git clone https://github.com/spacedock-io/npmco.de-indexer.git
+cd npmco.de-indexer
 npm install
 bin/seed
 ```
