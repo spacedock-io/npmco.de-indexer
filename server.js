@@ -38,7 +38,12 @@ function index(req, res, opts) {
       if (!versionObj)
         return sendError(req, res, errors.VersionNotFound(name, version))
 
-      var importer = Importer({ name: name, version: version });
+      var importer = Importer({
+        name: name,
+        version: version,
+        author: versionObj._npmUser.name
+      })
+
       request(versionObj.dist.tarball)
         .pipe(zlib.createGunzip())
         .pipe(tar.Parse())

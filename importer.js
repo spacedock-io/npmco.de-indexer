@@ -14,6 +14,7 @@ var Importer = module.exports = function (options) {
 
   this.name = options.name;
   this.version = options.version;
+  this.author = options.author
   this.elasticsearch = options.elasticsearch;
 
   stream.Duplex.call(this, { objectMode: true });
@@ -41,6 +42,7 @@ Importer.prototype.add = function (entry) {
       doc: {
         package: self.name,
         version: self.version,
+        author: self.author,
         filename: entry.path.split('/').slice(1).join('/'),
         content: data
       }
