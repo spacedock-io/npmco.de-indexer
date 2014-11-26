@@ -1,24 +1,22 @@
 #!/usr/bin/env node
-var zlib = require('zlib'),
-    tar = require('tar'),
-    request = require('request'),
-    Importer = require('../lib/import'),
-    elasticstream = require('elasticstream');
+var request = require('request')
 
 var package = process.argv[2].split('@'),
     name = package[0],
-    version = package[1];
+    version = package[1]
 
 request({
-  url: 'https://registry.npmjs.org/' + name,
-  json: true
+  url: 'http://127.0.0.1:8008/index',
+  method: 'POST',
+  json: true,
+  body: {
+    name: name,
+    version: version
+  }
 }, function (err, res, body) {
-  if (err) throw err;
-  if (!body.versions[version]) throw new Error('No such version');
-
-  request(body.versions[version].dist.tarball)
-    .pipe(zlib.createGunzip())
-    .pipe(tar.Parse())
-    .pipe(Importer({ name: name, version: version }))
-    .pipe(elasticstream({ index: 'files', type: 'file' }));
-});
+  if (err) throw err
+  if (res.statusCode !== 201) {
+    console.error('Indexer error:', body)
+    process.exit(1)
+  }
+})
