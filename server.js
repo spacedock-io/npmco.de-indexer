@@ -86,7 +86,6 @@ function unindex(req, res, opts) {
         }
       }
     }, function (err, res_, body) {
-      console.log(JSON.stringify(body, null, 2))
       if (err) return sendError(req, res, err)
 
       if (res_.statusCode !== 200)
