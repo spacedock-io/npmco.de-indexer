@@ -63,6 +63,39 @@ function index(req, res, opts) {
 }
 
 function unindex(req, res, opts) {
+  bodyJson(req, res, function (err, body) {
+    if (err) return sendError(req, res, err)
+
+    var name = body.name
+    if (!name)
+      return sendError(req, res, errors.BadRequest('Package name (`name`) is required'))
+
+    // TODO: make unindexing by version work
+
+    request({
+      url: config.elasticsearch + '/files/file/_query',
+      json: true,
+      method: 'DELETE',
+      body: {
+        query: {
+          filtered: {
+            filter: {
+              term: { package: name }
+            }
+          }
+        }
+      }
+    }, function (err, res_, body) {
+      console.log(JSON.stringify(body, null, 2))
+      if (err) return sendError(req, res, err)
+
+      if (res_.statusCode !== 200)
+        return sendError(req, res, errors.UnknownUpstreamError(res_.statusCode))
+
+      res.writeHead(201)
+      res.end()
+    })
+  })
 }
 
 var router = new Router()
