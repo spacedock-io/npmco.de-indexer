@@ -112,6 +112,6 @@ var server = http.createServer(function (req, res) {
   router.call(this, req, res)
 })
 
-server.listen(8008, function () {
+server.listen(config.port || 8008, config.host || '127.0.0.1', function () {
   log.info('npmco.de-indexer listening on ' + server.address().port)
 })
